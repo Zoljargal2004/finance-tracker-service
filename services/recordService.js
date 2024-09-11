@@ -90,9 +90,26 @@ const getRecords = async (day, cat, type, up, down) => {
     console.error("Error: ", error);
   }
 };
+
+const totalAmount = async (type, month) => {
+  console.log(type, month);
+  try {
+    const res = await sql`
+      SELECT SUM(amount) 
+      FROM records 
+      WHERE transactiontype = ${type} 
+      AND transactiondate LIKE ${"%-" + month + "-%"};
+    `;
+    return res[0]?.sum || 0;
+  } catch (error) {
+    console.error("Error in backend: ", error);
+  }
+};
+
 module.exports = {
   addNewRecord,
   deleteRecord,
   // editRecord,
+  totalAmount,
   getRecords,
 };

@@ -12,6 +12,7 @@ const {
   editRecord,
   deleteRecord,
   getRecords,
+  totalAmount,
 } = require("./services/recordService");
 
 const app = startApp();
@@ -115,5 +116,15 @@ app.get(`/record/list`, async (req, res) => {
     res.status(200).json(lis);
   } catch (error) {
     res.status(404).json({ error: "couldnt find" });
+  }
+});
+
+app.get(`/record/amount`, async (req, res) => {
+  const { type, month } = req.query;
+  try {
+    const lis = await totalAmount(type, month);
+    res.status(200).json(lis);
+  } catch (error) {
+    res.status(404).json({ error: "couldnt find a shi" });
   }
 });
