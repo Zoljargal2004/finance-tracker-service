@@ -10,6 +10,7 @@ const addNewRecord = async (
   date,
   time
 ) => {
+  console.log(name, amount, type, description, categoryID, date, time);
   const id = uuidv4();
 
   try {
@@ -20,7 +21,7 @@ const addNewRecord = async (
 
     // Using explicit column names to avoid order issues
     await sql`
-    INSERT INTO records (id, name, amount, transactionType, description, transactionDate, transactionTime, categoryID)
+    INSERT INTO records (id, recordname, amount, transactionType, description, transactionDate, transactionTime, categoryID)
     VALUES (${id}, ${name}, ${amount}, ${type}, ${description}, ${date}, ${time}, ${categoryID});
   `;
 
@@ -92,7 +93,6 @@ const getRecords = async (day, cat, type, up, down) => {
 };
 
 const totalAmount = async (type, month) => {
-  console.log(type, month);
   try {
     const res = await sql`
       SELECT SUM(amount) 
@@ -106,10 +106,31 @@ const totalAmount = async (type, month) => {
   }
 };
 
+const getRecordsByCategory = async () => {
+  try {
+    const res =
+      await sql`select c.name, sum(r.amount) from records as r left join categories as c on r.categoryid = c.categoryid group by c.categoryid`;
+    return res;
+  } catch (error) {
+    console.error("BackendError: ", error);
+  }
+};
+
+const getRecentRecords = async (number) => {
+  try {
+    const res =
+      await sql`select * from records left join categories on records.categoryid = categories.categoryid  order by transactiondate desc limit ${number};`;
+    return res;
+  } catch (error) {
+    console.error("backend error: ", error);
+  }
+};
 module.exports = {
   addNewRecord,
   deleteRecord,
   // editRecord,
+  getRecordsByCategory,
+  getRecentRecords,
   totalAmount,
   getRecords,
 };

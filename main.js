@@ -13,6 +13,8 @@ const {
   deleteRecord,
   getRecords,
   totalAmount,
+  getRecordsByCategory,
+  getRecentRecords,
 } = require("./services/recordService");
 
 const app = startApp();
@@ -84,29 +86,29 @@ app.delete("/record/delete", async (req, res) => {
   }
 });
 
-app.put(`/record/edit`, async (req, res) => {
-  const { id, name, amount, type, description, categoryID, date, time } =
-    req.body;
-  try {
-    if (!id || !categoryID || !name || !amount || !type) {
-      return res.status(400).json({ error: "REq error" });
-    }
-    await editRecord(
-      id,
-      name,
-      amount,
-      type,
-      description,
-      categoryID,
-      date,
-      time
-    );
-    return res.status(200).json({ message: "success" });
-  } catch (error) {
-    console.error("Error: ", error);
-    res.status(500).json({ error: "Failed to edit" });
-  }
-});
+// app.put(`/record/edit`, async (req, res) => {
+//   const { id, name, amount, type, description, categoryID, date, time } =
+//     req.body;
+//   try {
+//     if (!id || !categoryID || !name || !amount || !type) {
+//       return res.status(400).json({ error: "REq error" });
+//     }
+//     await editRecord(
+//       id,
+//       name,
+//       amount,
+//       type,
+//       description,
+//       categoryID,
+//       date,
+//       time
+//     );
+//     return res.status(200).json({ message: "success" });
+//   } catch (error) {
+//     console.error("Error: ", error);
+//     res.status(500).json({ error: "Failed to edit" });
+//   }
+// });
 
 app.get(`/record/list`, async (req, res) => {
   const { date, category, type, min, max } = req.query;
@@ -126,5 +128,24 @@ app.get(`/record/amount`, async (req, res) => {
     res.status(200).json(lis);
   } catch (error) {
     res.status(404).json({ error: "couldnt find a shi" });
+  }
+});
+
+app.get(`/record/groupByCategory`, async (req, res) => {
+  try {
+    const lis = await getRecordsByCategory();
+    res.status(200).json(lis);
+  } catch (error) {
+    res.status(404).json({ error: "coulnt find a shi" });
+  }
+});
+
+app.get(`/record/getRecent`, async (req, res) => {
+  const { number } = req.query;
+  try {
+    const lis = await getRecentRecords(number);
+    res.status(200).json(lis);
+  } catch (error) {
+    console.error("backend error: ", error);
   }
 });
