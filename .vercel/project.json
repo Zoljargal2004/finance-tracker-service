@@ -1,1 +1,14 @@
-{"orgId":"team_RDEHu5mNVBGcmlpSR4p1Z7E3","projectId":"prj_A1hIKgfYaixVW8KuUmZLiJYwSHLz"}
+{
+  "projectId": "prj_hWdPx737Jq0d9gKsq05QImedmCLT",
+  "orgId": "team_RDEHu5mNVBGcmlpSR4p1Z7E3",
+  "settings": {
+    "createdAt": 1726540510509,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "20.x"
+  }
+}

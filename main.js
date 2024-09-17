@@ -142,6 +142,7 @@ app.get(`/record/groupByCategory`, async (req, res) => {
 
 app.get(`/record/getRecent`, async (req, res) => {
   const { number } = req.query;
+  console.log("");
   try {
     const lis = await getRecentRecords(number);
     res.status(200).json(lis);
