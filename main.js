@@ -149,3 +149,7 @@ app.get(`/record/getRecent`, async (req, res) => {
     console.error("backend error: ", error);
   }
 });
+
+app.get(`/`, (req, res) => {
+  res.json("file reading");
+});
