@@ -20,13 +20,14 @@ const {
 const app = startApp();
 
 app.get("/category/list", async (req, res) => {
-  const list = await readCategories();
+  const { userId } = req.query;
+  const list = await readCategories(userId);
   res.json(list);
 });
 
 app.post("/category/add", async (req, res) => {
-  const { name, icon_name, color } = req.body;
-  const id = await createNewCategory(name, icon_name, color);
+  const { userId, name, icon_name, color } = req.body;
+  const id = await createNewCategory(userId, name, icon_name, color);
   res.status(201).json({ id });
 });
 
@@ -44,7 +45,8 @@ app.delete("/category/delete", (req, res) => {
 // Records
 
 app.post("/record/add", async (req, res) => {
-  const { name, amount, type, description, categoryID, date, time } = req.body;
+  const { userid, name, amount, type, description, categoryID, date, time } =
+    req.body;
 
   try {
     // Basic validation
@@ -61,7 +63,16 @@ app.post("/record/add", async (req, res) => {
 
     // Call the async function and wait for it to complete
 
-    await addNewRecord(name, amount, type, description, categoryID, date, time);
+    await addNewRecord(
+      userid,
+      name,
+      amount,
+      type,
+      description,
+      categoryID,
+      date,
+      time
+    );
 
     // Send success response
     res.status(201).json({ message: "Record added successfully" });
@@ -111,10 +122,10 @@ app.delete("/record/delete", async (req, res) => {
 // });
 
 app.get(`/record/list`, async (req, res) => {
-  const { date, category, type, min, max } = req.query;
+  const { userid, date, category, type, min, max } = req.query;
 
   try {
-    const lis = await getRecords(date, category, type, min, max);
+    const lis = await getRecords(userid, date, category, type, min, max);
     res.status(200).json(lis);
   } catch (error) {
     res.status(404).json({ error: "couldnt find" });
@@ -122,9 +133,9 @@ app.get(`/record/list`, async (req, res) => {
 });
 
 app.get(`/record/amount`, async (req, res) => {
-  const { type, month } = req.query;
+  const { userid, type, month } = req.query;
   try {
-    const lis = await totalAmount(type, month);
+    const lis = await totalAmount(userid, type, month);
     res.status(200).json(lis);
   } catch (error) {
     res.status(404).json({ error: "couldnt find a shi" });
@@ -132,8 +143,9 @@ app.get(`/record/amount`, async (req, res) => {
 });
 
 app.get(`/record/groupByCategory`, async (req, res) => {
+  const { userid } = req.query;
   try {
-    const lis = await getRecordsByCategory();
+    const lis = await getRecordsByCategory(userid);
     res.status(200).json(lis);
   } catch (error) {
     res.status(404).json({ error: "coulnt find a shi" });
@@ -141,10 +153,9 @@ app.get(`/record/groupByCategory`, async (req, res) => {
 });
 
 app.get(`/record/getRecent`, async (req, res) => {
-  const { number } = req.query;
-  console.log("");
+  const { number, userid } = req.query;
   try {
-    const lis = await getRecentRecords(number);
+    const lis = await getRecentRecords(number, userid);
     res.status(200).json(lis);
   } catch (error) {
     console.error("backend error: ", error);

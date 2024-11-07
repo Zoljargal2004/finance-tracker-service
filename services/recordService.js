@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const { sql } = require("../configs/database");
 
 const addNewRecord = async (
+  userid,
   name,
   amount,
   type,
@@ -21,8 +22,8 @@ const addNewRecord = async (
 
     // Using explicit column names to avoid order issues
     await sql`
-    INSERT INTO records (id, recordname, amount, transactionType, description, transactionDate, transactionTime, categoryID)
-    VALUES (${id}, ${name}, ${amount}, ${type}, ${description}, ${date}, ${time}, ${categoryID});
+    INSERT INTO records (id, userid, name, amount, transactionType, description, transactionDate, transactionTime, categoryID)
+    VALUES (${id}, ${userid}, ${name}, ${amount}, ${type}, ${description}, ${date}, ${time}, ${categoryID});
   `;
 
     return "success";
@@ -66,12 +67,13 @@ const deleteRecord = async (id) => {
 //   }
 // };
 
-const getRecords = async (day, cat, type, up, down) => {
+const getRecords = async (userid, day, cat, type, up, down) => {
+  console.log(userid);
   try {
     let query = sql`SELECT *
     FROM records AS r
     LEFT JOIN categories AS c ON r.categoryid = c.categoryid
-    WHERE true `;
+    WHERE r.userid = ${userid} `;
     if (day) {
       query = sql`${query} AND r.transactionDate=${day} `;
     }
@@ -92,13 +94,13 @@ const getRecords = async (day, cat, type, up, down) => {
   }
 };
 
-const totalAmount = async (type, month) => {
+const totalAmount = async (userid, type, month) => {
   try {
     const res = await sql`
       SELECT SUM(amount) 
       FROM records 
       WHERE transactiontype = ${type} 
-      AND transactiondate LIKE ${"%-" + month + "-%"};
+      AND transactiondate LIKE ${"%-" + month + "-%"} AND userid =${userid};
     `;
     return res[0]?.sum || 0;
   } catch (error) {
@@ -106,20 +108,24 @@ const totalAmount = async (type, month) => {
   }
 };
 
-const getRecordsByCategory = async () => {
+const getRecordsByCategory = async (userid) => {
   try {
     const res =
-      await sql`select c.name, sum(r.amount) from records as r left join categories as c on r.categoryid = c.categoryid group by c.categoryid`;
+      await sql`select c.name, sum(r.amount) from records  as r left join categories as c on r.categoryid = c.categoryid where c.userid = ${userid} group by c.categoryid`;
     return res;
   } catch (error) {
     console.error("BackendError: ", error);
   }
 };
 
-const getRecentRecords = async (number) => {
+const getRecentRecords = async (number, userid) => {
   try {
-    const res =
-      await sql`select * from records left join categories on records.categoryid = categories.categoryid  order by transactiondate desc limit ${number};`;
+    const res = await sql`SELECT *
+FROM records
+LEFT JOIN categories AS c ON records.categoryid = c.categoryid
+WHERE c.userid = ${userid}
+ORDER BY records.transactiondate DESC
+LIMIT ${number};`;
     return res;
   } catch (error) {
     console.error("backend error: ", error);
